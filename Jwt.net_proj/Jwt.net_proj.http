@@ -1,0 +1,6 @@
+@Jwt.net_proj_HostAddress = http://localhost:5093
+
+GET {{Jwt.net_proj_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
