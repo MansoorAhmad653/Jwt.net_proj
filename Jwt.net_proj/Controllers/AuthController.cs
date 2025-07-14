@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Jwt.net_proj.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using YourProject.Helpers;
+using Jwt.net_proj.Jwt_Helper;
 
 [Route("api/[controller]")]
 [ApiController]
