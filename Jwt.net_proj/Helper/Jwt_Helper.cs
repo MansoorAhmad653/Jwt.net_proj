@@ -7,7 +7,7 @@ using System.Text;
 using Jwt.net_proj.Models;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Jwt.net_proj.Entities
+namespace Jwt.net_proj.Helper
 {
     public static class Jwt_Helper
     {

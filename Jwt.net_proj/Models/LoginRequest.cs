@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 
 namespace Jwt.net_proj.Models
 {
@@ -6,5 +7,6 @@ namespace Jwt.net_proj.Models
     {
         public string Email { get; set; }
         public string Password { get; set; }
+        public ClaimsIdentity? Username { get; internal set; }
     }
 }

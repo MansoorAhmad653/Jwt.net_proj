@@ -1,7 +1,8 @@
 ﻿using Jwt.net_proj.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Jwt.net_proj.Jwt_Helper;
+using Jwt.net_proj.Entities; 
+using Jwt.net_proj.Helper;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -14,12 +15,12 @@ public class AuthController : ControllerBase
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, "123"),
-            new Claim(ClaimTypes.Name, request.Username),
+            new Claim(ClaimTypes.Name, request.Email), // Fixed: Use Email property instead of Username
             new Claim(ClaimTypes.Role, "User")
         };
 
-        var accessToken = JwtHelper.GenerateAccessToken(claims);
-        var refreshToken = JwtHelper.GenerateRefreshToken();
+        var accessToken = Jwt_Helper.GenerateAccessToken(claims);
+        var refreshToken = Jwt_Helper.GenerateRefreshToken();
 
         return Ok(new
         {
@@ -28,4 +29,3 @@ public class AuthController : ControllerBase
         });
     }
 }
-    
