@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Jwt.net_proj.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Jwt.net_proj.Models;
-using Microsoft.IdentityModel.Tokens;
+
 
 namespace Jwt.net_proj.Helper
 {
@@ -43,5 +43,28 @@ namespace Jwt.net_proj.Helper
                 return Convert.ToBase64String(randomNumber);
             }
         }
+
+        public static ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = true,
+                ValidateIssuer = true,
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = false, // Allow expired tokens
+                ValidIssuer = _jwtSetting.Issuer,
+                ValidAudience = _jwtSetting.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSetting.SecretKey))
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+
+            if (securityToken is not JwtSecurityToken jwtToken ||
+                !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+
+            return principal;
+        } 
     }
 }

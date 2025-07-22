@@ -1,7 +1,7 @@
 ﻿using Jwt.net_proj.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Jwt.net_proj.Entities; 
+using Jwt.net_proj.Entities;
 using Jwt.net_proj.Helper;
 
 [Route("api/[controller]")]
@@ -9,7 +9,7 @@ using Jwt.net_proj.Helper;
 public class AuthController : ControllerBase
 {
     [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginRequest request)
+    public IActionResult Login(LoginRequest request)
     {
         // Normally: validate user credentials first
         var claims = new List<Claim>
