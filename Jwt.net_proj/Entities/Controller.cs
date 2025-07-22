@@ -3,7 +3,7 @@ using Jwt.net_proj.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-//using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,12 +12,18 @@ namespace Jwt.net_proj.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(IConfiguration configuration) : ControllerBase
+    public class AuthController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
+
+        public AuthController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public static User user = new();
 
         [HttpPost("request")]
-
         public ActionResult<User> Register(UserDto request)
         {
             var hashedPasswords = new PasswordHasher<User>()

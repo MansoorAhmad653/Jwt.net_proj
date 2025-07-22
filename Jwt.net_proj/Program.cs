@@ -1,71 +1,69 @@
-using Scalar.AspNetCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+﻿using Jwt.net_proj.Helper;
 using Jwt.net_proj.Models;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using System.Text;
 
+namespace Jwt.net_proj.Helpers;
 
-namespace Jwt.net_proj.Helpers
+public class Program
 {
-    public class Program
+    /// <summary>
+    /// The main entry point for the application.
+    /// </summary>
+    /// <param name="args">Command line arguments.</param>
+    /// <returns>None.</returns>
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {   
-            var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(args);
 
-            // JWT Configuration
-            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-            builder.Services.Configure<JwtSetting>(jwtSettings);
+        // JWT Configuration
+        var jwtSettingsSection = builder.Configuration.GetSection("JwtSettings");
+        builder.Services.Configure<JwtSetting>(jwtSettingsSection);
 
-            var secretKey = jwtSettings.GetValue<string>("SecretKey");
+        // ✅ Correct way to initialize Jwt_Helper with the actual JwtSetting object
+        var jwtConfig = new JwtSetting();
+        jwtSettingsSection.Bind(jwtConfig);
+        Jwt_Helper.Initialize(jwtConfig);
 
-            builder.Services.AddAuthentication(options =>
+        var secretKey = jwtConfig.SecretKey;
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings["Issuer"],
-                    ValidAudience = jwtSettings["Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-                };
-            });
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtConfig.Issuer,
+                ValidAudience = jwtConfig.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+            };
+        });
 
-            builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddOpenApi();
 
-            // Add services to the container.
-            builder.Services.AddControllers();
-            builder.Services.AddOpenApi();
+        var app = builder.Build();
 
-            //builder.Services.AddSwaggerGen();
-            var app = builder.Build();
-
-            //Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-                app.MapScalarApiReference();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.MapControllers();
-
-            app.Run();
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapOpenApi();
+            app.MapScalarApiReference();
         }
+
+        app.UseHttpsRedirection();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.MapControllers();
+        app.Run();
     }
 }
